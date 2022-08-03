@@ -1,0 +1,6 @@
+---
+- name: Batman upgrade playbook
+  hosts: batman.usersys.redhat.com
+  tasks:
+  - name: Upgrade Satellite
+    command: satellite-maintain upgrade run --target-version 6.6.z --whitelist="check-old-foreman-tasks,disk-performance" -y

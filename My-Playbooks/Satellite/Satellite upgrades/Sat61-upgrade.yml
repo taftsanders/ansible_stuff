@@ -1,0 +1,28 @@
+---
+- name: Satellite 6.1 upgrade
+  hosts: bombsat.usersys.redhat.com
+  tasks:
+  - name: Yum update on Satellite
+    yum:
+      name: '*' # required. A package name , or package specifier with version, like C(name-1.0).,If a previous version is specified, the task also needs to turn C(allow_downgrade) on. See the C(allow_downgrade) documentation for caveats with downgrading packages.,When using state=latest, this can be '*' which means run C(yum -y update).,You can also pass a url or a local path to a rpm file (using state=present). To operate on several packages this can accept a comma separated list of packages or (as of 2.0) a list of packages.
+      update_cache: yes # not required. Force yum to check if cache is out of date and redownload if needed. Has an effect only if state is I(present) or I(latest).
+      enablerepo:  'rhel-7-server-rpms,rhel-7-server-satellite-6.1-rpms,rhel-server-rhscl-7-rpms' # not required. I(Repoid) of repositories to enable for the install/update operation. These repos will not persist beyond the transaction. When specifying multiple repos, separate them with a ",".
+      disablerepo: '*' # not required. I(Repoid) of repositories to disable for the install/update operation. These repos will not persist beyond the transaction. When specifying multiple repos, separate them with a ",".
+      state: latest # not required. choices: absent;installed;latest;present;removed. Whether to install (C(present) or C(installed), C(latest)), or remove (C(absent) or C(removed)) a package.
+
+  - name: Update Satellite
+    command: 'katello-installer --upgrade'
+
+- name: Capsule 6.1 upgrade
+  hosts: bombcap.usersys.redhat.com
+  tasks:
+  - name: Yum update on Capsule
+    yum:
+      name: '*' # required. A package name , or package specifier with version, like C(name-1.0).,If a previous version is specified, the task also needs to turn C(allow_downgrade) on. See the C(allow_downgrade) documentation for caveats with downgrading packages.,When using state=latest, this can be '*' which means run C(yum -y update).,You can also pass a url or a local path to a rpm file (using state=present). To operate on several packages this can accept a comma separated list of packages or (as of 2.0) a list of packages.
+      update_cache: yes # not required. Force yum to check if cache is out of date and redownload if needed. Has an effect only if state is I(present) or I(latest).
+      enablerepo:  'rhel-7-server-rpms,rhel-7-server-capsule-6.1-rpms,rhel-7-server-satellite-tools-6.1-rpms'# not required. I(Repoid) of repositories to enable for the install/update operation. These repos will not persist beyond the transaction. When specifying multiple repos, separate them with a ",".
+      disablerepo: '*' # not required. I(Repoid) of repositories to disable for the install/update operation. These repos will not persist beyond the transaction. When specifying multiple repos, separate them with a ",".
+      state: latest # not required. choices: absent;installed;latest;present;removed. Whether to install (C(present) or C(installed), C(latest)), or remove (C(absent) or C(removed)) a package.
+
+  - name: Upgrade Capsule
+    command: 'katello-installer --upgrade'

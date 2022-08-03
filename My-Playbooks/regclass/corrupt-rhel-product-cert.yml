@@ -1,0 +1,24 @@
+---
+- name: corrupt 69.pem
+  hosts: register
+  tasks:
+  - name: remove good 69.pem
+    file:
+      state: absent
+      path: /etc/pki/product/69.pem
+
+  - name: remove good 69.pem
+    file:
+      state: absent
+      path: /etc/pki/product-default/69.pem
+
+  - name: copy bad 69.pem
+    copy:
+      src: ./pemfiles/rhel-6.7.pem
+      dest: /etc/pki/product-default/69.pem
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Clear bash history
+    shell: history -cw

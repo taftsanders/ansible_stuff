@@ -1,0 +1,50 @@
+---
+- name: add iptables rules
+  hosts: register
+  tasks:
+  - name: start iptables
+    service:
+      name: firewalld
+      state: started
+
+  - name: flush iptables
+    iptables:
+      flush: True
+
+  - name: Set INPUT chain to drop port 80
+    iptables:
+      chain: INPUT
+      jump: DROP
+      destination_port: 80
+      protocol: tcp
+
+  - name: Set INPUT chain to drop port 443
+    iptables:
+      chain: INPUT
+      jump: DROP
+      destination_port: 443
+      protocol: tcp
+
+  - name: Set OUTPUT chain to drop port 80
+    iptables:
+      chain: OUTPUT
+      jump: DROP
+      destination_port: 80
+      protocol: tcp
+
+  - name: Set OUTPUT chain to drop port 443
+    iptables:
+      chain: OUTPUT
+      jump: DROP
+      destination_port: 443
+      protocol: tcp
+
+  - name: Clear bash history
+    shell: "history -cw"
+  
+  - name: Clear messages file
+    lineinfile:
+      path: /var/log/messages
+      regexp: 'ansible'
+      state: absent
+    

@@ -1,0 +1,9 @@
+---
+- name: fix dns resolution
+  hosts: register
+  tasks:
+  - name: remove fake ip from /etc/hosts
+    command: sed -i -e 's|1.2.3.4 subscription.rhsm.redhat.com||' /etc/hosts 
+
+  - name: Clear bash history
+    shell: history -cw

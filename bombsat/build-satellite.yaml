@@ -1,0 +1,1193 @@
+---
+- name: "Build a BombSat {{ satellite_version }}"
+  hosts: all
+  vars_files:
+    - .ansible/vault.yaml
+  vars:
+  #####################################################
+  ##  Satellite options to configure before install  ##
+  #####################################################
+  #Where are the SCA and non-SCA manifests?
+    nonsca_manifest_path: "/tmp/non-sca.zip"
+    sca_manifest_path: "/tmp/sca.zip"
+  #What do you want your admin username to be?
+    satellite_user: "admin"
+  #What does you want your admin password to be?
+    satellite_password: "redhat"
+    satellite_url: "https://{{ ansible_facts.fqdn }}"
+  #What version of Satellite will you install?
+    satellite_version: "6.9"
+  #####################################################
+    Satellite_Product_Cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIGBjCCA+6gAwIBAgIJALDxRLt/tU68MA0GCSqGSIb3DQEBBQUAMIGuMQswCQYD
+      VQQGEwJVUzEXMBUGA1UECAwOTm9ydGggQ2Fyb2xpbmExFjAUBgNVBAoMDVJlZCBI
+      YXQsIEluYy4xGDAWBgNVBAsMD1JlZCBIYXQgTmV0d29yazEuMCwGA1UEAwwlUmVk
+      IEhhdCBFbnRpdGxlbWVudCBQcm9kdWN0IEF1dGhvcml0eTEkMCIGCSqGSIb3DQEJ
+      ARYVY2Etc3VwcG9ydEByZWRoYXQuY29tMB4XDTIwMTAxMzE2NTg1NloXDTQwMTAw
+      ODE2NTg1NlowRDFCMEAGA1UEAww5UmVkIEhhdCBQcm9kdWN0IElEIFtmOGE0Zjk4
+      NS1kN2U3LTRiNjItYjAwOS0wNDIyNTY3ZmExNjddMIICIjANBgkqhkiG9w0BAQEF
+      AAOCAg8AMIICCgKCAgEAxj9J04z+Ezdyx1U33kFftLv0ntNS1BSeuhoZLDhs18yk
+      sepG7hXXtHh2CMFfLZmTjAyL9i1XsxykQpVQdXTGpUF33C2qBQHB5glYs9+d781x
+      8p8m8zFxbPcW82TIJXbgW3ErVh8vk5qCbG1cCAAHb+DWMq0EAyy1bl/JgAghYNGB
+      RvKJObTdCrdpYh02KUqBLkSPZHvo6DUJFN37MXDpVeQq9VtqRjpKLLwuEfXb0Y7I
+      5xEOrR3kYbOaBAWVt3mYZ1t0L/KfY2jVOdU5WFyyB9PhbMdLi1xE801j+GJrwcLa
+      xmqvj4UaICRzcPATP86zVM1BBQa+lilkRQes5HyjZzZDiGYudnXhbqmLo/n0cuXo
+      QBVVjhzRTMx71Eiiahmiw+U1vGqkHhQNxb13HtN1lcAhUCDrxxeMvrAjYdWpYlpI
+      yW3NssPWt1YUHidMBSAJ4KctIf91dyE93aStlxwC/QnyFsZOmcEsBzVCnz9GmWMl
+      1/6XzBS1yDUqByklx0TLH+z/sK9A+O2rZAy1mByCYwVxvbOZhnqGxAuToIS+A81v
+      5hCjsCiOScVB+cil30YBu0cH85RZ0ILNkHdKdrLLWW4wjphK2nBn2g2i3+ztf+nQ
+      ED2pQqZ/rhuW79jcyCZl9kXqe1wOdF0Cwah4N6/3LzIXEEKyEJxNqQwtNc2IVE8C
+      AwEAAaOBjzCBjDAJBgNVHRMEAjAAMCMGDCsGAQQBkggJAYF6AQQTDBFSZWQgSGF0
+      IFNhdGVsbGl0ZTAVBgwrBgEEAZIICQGBegIEBQwDNi45MBgGDCsGAQQBkggJAYF6
+      AwQIDAZ4ODZfNjQwKQYMKwYBBAGSCAkBgXoEBBkMF3NhdGVsbGl0ZS02Ljksc2F0
+      ZWxsaXRlMA0GCSqGSIb3DQEBBQUAA4ICAQDVtXU3u7NqvaYybc0g7n9z1BOG4hDC
+      gSqFxxIkPMpiRC7kovvfOoczrmeKH6f635Cntkzj2LF5+pawy9Tjd5ME877KtNrj
+      STf2i3VuGXNv+dYcAkiC3yASA6gtAUkIHk775SGFt6EhZE4LjNvNZ6IvQvpH2MOc
+      MkJ2BQKGfk9BtlvbFCRQYCv0JJASXQkwIfmZmIcxwDYXhRGrW7NDI/AT3uDhDCxp
+      zQCo6kOIShIBeGglcBbkUNhuNP9HdVHkpdk7tna/ty4JSrjuA2HP7+/TzjfVUWmu
+      Nv0drVejtALMJuoULLGO4nzl+E9pSwwuHD1Sn9M7+JAAsh3SCWcyvBGqoa+1zdVo
+      A1WkOof24/WzUsA0/RQxruFrHeR8nxNsZctmCMrgh2J47dUR5KBXU72Pzxw8bIBQ
+      1OJsNPToh64QMjYfACHxezXXxt/Nss6LLyfBqrfas8JVeOc5Gi5Q6O88qti8EJWR
+      in1htGlZIdSQtF/EGQWKIYtx4bODwLVkHrl5zkmdRWXxibUacMCfJmWiL8AeVgAv
+      knFpOy0cpso0aqNviTXMVNzaktfucU1i/L1nq4OdI5hy14IZKz5aFInqVLQ373MG
+      RhCtyLagxXwPD6hAXf6h3R3u5Tz/FlFGNsicsH4vQvqEFvNJLFXnwuIjCI1P5nqb
+      1rWhj9Z9i1TD4A==
+      -----END CERTIFICATE-----
+  tasks:
+  - name: "Add the Satellite product cert for easy auto-attach"
+    copy:
+      dest: "/etc/pki/product-default/250.pem"
+      owner: "root"
+      group: "root"
+      mode: 0644
+      content: "{{ Satellite_Product_Cert }}"
+
+  - name: "Register Server to Customer Portal"
+    redhat_subscription:
+      state: "present"
+      username: "{{ rhsm_username }}"
+      password: "{{ rhsm_password }}"
+      auto_attach: true
+      rhsm_baseurl: 'https://cdn.redhat.com'
+      server_hostname: 'subscription.rhsm.redhat.com'
+      server_insecure: 'false'
+
+  - name: "Enable Satellite Repositories"
+    rhsm_repository:
+      name: rhel-7-server-rpms,rhel-7-server-satellite-{{ satellite_version }}-rpms,rhel-7-server-satellite-maintenance-6-rpms,rhel-server-rhscl-7-rpms,rhel-7-server-ansible-2.9-rpms
+      state: enabled
+
+  - name: Check if Satellite is installed
+    shell: "rpm -qa | grep satellite"
+    register: satellite_installed
+    ignore_errors: yes
+
+  - name: "Yum Update"
+    yum:
+      name: '*'
+      state: latest
+    when: satellite_installed.rc == 1
+
+  - name: Check for kernel update
+    shell: "yum history info $(yum history | head -5 | tail -1 | awk '{$1=$1}1;' | cut -d' ' -f1) | grep kernel"
+    register: kernel_updated
+    ignore_errors: yes
+
+  - name: "Install Vim, Sos"
+    yum:
+      name: ['vim', 'sos']
+      state: present
+      disable_plugin: foreman-protector
+
+  - name: "Reboot"
+    reboot:
+      reboot_timeout: 1800
+    when: kernel_updated.rc == 0
+
+  - name: "Add hostname & IP to /etc/hosts"
+    lineinfile:
+      path: /etc/hosts
+      line: "{{ ansible_facts['default_ipv4']['address'] }} {{ ansible_facts['fqdn'] }} {{ ansible_facts['hostname'] }}"
+
+  - name: "Disable firewalld"
+    systemd:
+      enabled: no
+      state: stopped
+      name: firewalld
+
+  - name: "Yum Install Satellite"
+    yum:
+      name: 'satellite'
+      state: latest
+    when: satellite_installed.rc == 1
+
+  - name: "Run Satellite Installer"
+    shell: "satellite-installer -S satellite --foreman-initial-admin-username {{ satellite_user }} --foreman-initial-admin-password {{ satellite_password }}"
+    when: satellite_installed.rc == 1
+
+  - name: "Create SCA Organization"
+    redhat.satellite.organization:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      name: "SCA"
+      state: present
+
+  - name: "Copy Non-SCA Manifest to {{  ansible_facts.fqdn }}"
+    synchronize:
+      src: "{{ nonsca_manifest_path }}"
+      dest: "{{ nonsca_manifest_path }}"
+      mode: push
+    with_items:
+      - "{{ nonsca_manifest_path }}"
+    ignore_errors: yes
+
+  - name: Check for Non-SCA Manifest
+    stat:
+      path: "{{ nonsca_manifest_path }}"
+    register: copied_nonsca_manifest
+    ignore_errors: yes
+
+  - name: "Upload Non-SCA Manifest"
+    redhat.satellite.subscription_manifest:
+      organization: "Default Organization"
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      manifest_path: "{{ nonsca_manifest_path }}"
+      state: present
+    when: copied_nonsca_manifest.stat.exists == 1
+
+  - name: "Copy SCA Manifest to {{  ansible_facts.fqdn }}"
+    synchronize:
+      src: "{{ sca_manifest_path }}"
+      dest: "{{ sca_manifest_path }}"
+      mode: push
+    with_items:
+      - "{{ sca_manifest_path }}"
+    ignore_errors: yes
+
+  - name: Check for SCA Manifest
+    stat:
+      path: "{{ sca_manifest_path }}"
+    register: copied_sca_manifest
+    ignore_errors: yes
+
+  - name: "Upload SCA Manifest"
+    redhat.satellite.subscription_manifest:
+      organization: "SCA"
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      manifest_path: "{{ sca_manifest_path }}"
+      state: present
+    when: copied_sca_manifest.stat.exists == 1
+
+  - name: "Enable RHEL 5 RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-5-server-rpms
+      repositories:
+      - releasever: "5.10"
+        basearch: "x86_64"
+      - releasever: "5Server"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 5 EUS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-5-server-eus-rpms
+      repositories:
+      - releasever: "5.9"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 5 ELS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-5-server-els-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 5 Retired RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-5-server-retired-els-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 6 RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-6-server-rpms
+      repositories:
+      - releasever: "6.7"
+        basearch: "x86_64"
+      - releasever: "6.10"
+        basearch: "x86_64"
+      - releasever: "6Server"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 6 EUS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-6-server-eus-rpms
+      repositories:
+      - releasever: "6.7"
+        basearch: "x86_64"
+      state: enabled
+
+
+  - name: "Enable RHEL 6 ELS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-6-server-els-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+
+  - name: "Enable RHEL 7 RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-rpms
+      repositories:
+      - releasever: "7.6"
+        basearch: "x86_64"
+      - releasever: "7.7"
+        basearch: "x86_64"
+      - releasever: "7.8"
+        basearch: "x86_64"
+      - releasever: "7.9"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 7 EUS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-eus-rpms
+      repositories:
+      - releasever: "7.6"
+        basearch: "x86_64"
+      - releasever: "7.7"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs Appstream repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-8-for-x86_64-appstream-rpms
+      repositories:
+      - releasever: "8.0"
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.3"
+      - releasever: "8.4"
+      - releasever: "8"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs BaseOS repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-8-for-x86_64-baseos-rpms
+      repositories:
+      - releasever: "8.0"
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.3"
+      - releasever: "8.4"
+      - releasever: "8"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs Appstream EUS repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-8-for-x86_64-appstream-eus-rpms
+      repositories:
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs BaseOS EUS repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-8-for-x86_64-baseos-eus-rpms
+      repositories: 
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable RHEL 7 Ansible Engine 2.9 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-ansible-2.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 8 Ansible Engine 2.9 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: ansible-2.9-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable RHEL 7 Ansible Engine 2 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-ansible-2-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 8 Ansible Engine 2 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: ansible-2-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable RHEL 7 Extras RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-extras-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 7 Satellite Capsule 6.8 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-satellite-capsule-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 7 Satellite Capsule 6.9 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-satellite-capsule-6.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Maintenance 6 for RHEL 7 Server RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-satellite-maintenance-6-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 5 Server - ELS RPMs x86_64"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-5-server-els-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 6 Server - ELS RPMs x86_64"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-6-server-els-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 6 Server RPMs x86_64"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-6-server-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 7 Server - EUS RPMs x86_64 7.7"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-eus-satellite-tools-6.8-rpms
+      repositories:
+      - releasever: "7.7"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 7 Server RPMs x86_64 7Server"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 8 x86_64 - EUS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: satellite-tools-6.8-for-rhel-8-x86_64-eus-rpms
+      repositories:
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 8 x86_64 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: satellite-tools-6.8-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 6 Server - ELS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-6-server-els-satellite-tools-6.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 7 Server - EUS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-eus-satellite-tools-6.9-rpms
+      repositories:
+      - releasever: "7.7"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 7 Server RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-7-server-satellite-tools-6.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 8 x86_64 - EUS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: satellite-tools-6.9-for-rhel-8-x86_64-eus-rpms
+      repositories:
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 8 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: satellite-tools-6.9-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable Red Hat Software Collections RPMs for Red Hat Enterprise Linux 7 Server"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "Default Organization"
+      label: rhel-server-rhscl-7-rpms
+      repositories:
+      - releasever: "7Server"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Create Daily Sync Plan"
+    redhat.satellite.sync_plan:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      name: "Daily Sync"
+      organization: "Default Organization"
+      interval: "daily"
+      enabled: true
+      sync_date: "{{ ansible_facts.date_time.date }} 05:00:00 UTC"
+      products:
+        - 'Red Hat Ansible Engine'
+        - 'Red Hat Enterprise Linux for x86_64'
+        - 'Red Hat Enterprise Linux for x86_64 - Extended Update Support'
+        - 'Red Hat Enterprise Linux Server'
+        - 'Red Hat Enterprise Linux Server - Extended Life Cycle Support'
+        - 'Red Hat Satellite Capsule'
+        - 'Red Hat Software Collections (for RHEL Server)'
+      state: present
+
+  - name: Create LCE Dev for Default Organization
+    redhat.satellite.lifecycle_environment:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "Default Organization"
+      name: "Dev"
+      prior: "Library"
+
+  - name: Create LCE Test for Default Organization
+    redhat.satellite.lifecycle_environment:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "Default Organization"
+      name: "Test"
+      prior: "Dev"
+
+  - name: Create LCE Prod for Default Organization
+    redhat.satellite.lifecycle_environment:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "Default Organization"
+      name: "Prod"
+      prior: "Test"
+
+  - name: Sync Repositories
+    shell: for i in $(hammer --csv --no-headers repository list --fields Id); do hammer repository synchronize --id $i --async; done
+
+  - name: Create content views
+    redhat.satellite.content_view:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "Default Organization"
+      name: RHEL6
+      repositories:
+        - name: Red Hat Enterprise Linux 6 Server (RPMs)
+          product: 'Red Hat Enterprise Linux Server'
+
+  - name: Create content views
+    redhat.satellite.content_view:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "Default Organization"
+      name: RHEL7
+      repositories:
+        - name: Red Hat Enterprise Linux 7 Server (RPMs)
+          product: 'Red Hat Enterprise Linux Server'
+
+  - name: Create content views
+    redhat.satellite.content_view:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "Default Organization"
+      name: RHEL8
+      repositories:
+        - name: Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
+          product: 'Red Hat Enterprise Linux for x86_64'
+        - name: Red Hat Enterprise Linux 8 for x86_64 - Appstream (RPMs)
+          product: 'Red Hat Enterprise Linux for x86_64'
+
+  - name: Print End of Default Org Msg
+    ansible.builtin.debug:
+      msg: "Default Organization is Complete!"
+
+######################################################################
+######################################################################
+#                              SCA Section                           #
+######################################################################
+######################################################################
+
+  - name: "Enable RHEL 5 RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-5-server-rpms
+      repositories:
+      - releasever: "5.10"
+        basearch: "x86_64"
+      - releasever: "5Server"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 5 EUS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-5-server-eus-rpms
+      repositories:
+      - releasever: "5.9"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 5 ELS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-5-server-els-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 5 Retired RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-5-server-retired-els-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 6 RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-6-server-rpms
+      repositories:
+      - releasever: "6.7"
+        basearch: "x86_64"
+      - releasever: "6.10"
+        basearch: "x86_64"
+      - releasever: "6Server"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 6 EUS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-6-server-eus-rpms
+      repositories:
+      - releasever: "6.7"
+        basearch: "x86_64"
+      state: enabled
+
+
+  - name: "Enable RHEL 6 ELS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-6-server-els-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+
+  - name: "Enable RHEL 7 RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-rpms
+      repositories:
+      - releasever: "7.6"
+        basearch: "x86_64"
+      - releasever: "7.7"
+        basearch: "x86_64"
+      - releasever: "7.8"
+        basearch: "x86_64"
+      - releasever: "7.9"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 7 EUS RPMs repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-eus-rpms
+      repositories:
+      - releasever: "7.6"
+        basearch: "x86_64"
+      - releasever: "7.7"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs Appstream repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-8-for-x86_64-appstream-rpms
+      repositories:
+      - releasever: "8.0"
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.3"
+      - releasever: "8.4"
+      - releasever: "8"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs BaseOS repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-8-for-x86_64-baseos-rpms
+      repositories:
+      - releasever: "8.0"
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.3"
+      - releasever: "8.4"
+      - releasever: "8"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs Appstream EUS repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-8-for-x86_64-appstream-eus-rpms
+      repositories:
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable RHEL 8 RPMs BaseOS EUS repositories"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-8-for-x86_64-baseos-eus-rpms
+      repositories: 
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable RHEL 7 Ansible Engine 2.9 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-ansible-2.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 8 Ansible Engine 2.9 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: ansible-2.9-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable RHEL 7 Ansible Engine 2 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-ansible-2-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 8 Ansible Engine 2 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: ansible-2-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable RHEL 7 Extras RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-extras-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 7 Satellite Capsule 6.8 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-satellite-capsule-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable RHEL 7 Satellite Capsule 6.9 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-satellite-capsule-6.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Maintenance 6 for RHEL 7 Server RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-satellite-maintenance-6-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 5 Server - ELS RPMs x86_64"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-5-server-els-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 6 Server - ELS RPMs x86_64"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-6-server-els-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 6 Server RPMs x86_64"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-6-server-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 7 Server - EUS RPMs x86_64 7.7"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-eus-satellite-tools-6.8-rpms
+      repositories:
+      - releasever: "7.7"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 7 Server RPMs x86_64 7Server"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-satellite-tools-6.8-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 8 x86_64 - EUS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: satellite-tools-6.8-for-rhel-8-x86_64-eus-rpms
+      repositories:
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.8 for RHEL 8 x86_64 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: satellite-tools-6.8-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 6 Server - ELS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-6-server-els-satellite-tools-6.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 7 Server - EUS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-eus-satellite-tools-6.9-rpms
+      repositories:
+      - releasever: "7.7"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 7 Server RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-7-server-satellite-tools-6.9-rpms
+      repositories:
+      - basearch: "x86_64"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 8 x86_64 - EUS RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: satellite-tools-6.9-for-rhel-8-x86_64-eus-rpms
+      repositories:
+      - releasever: "8.1"
+      - releasever: "8.2"
+      - releasever: "8.4"
+      state: enabled
+
+  - name: "Enable Red Hat Satellite Tools 6.9 for RHEL 8 RPMs"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: satellite-tools-6.9-for-rhel-8-x86_64-rpms
+      repositories:
+      state: enabled
+
+  - name: "Enable Red Hat Software Collections RPMs for Red Hat Enterprise Linux 7 Server"
+    redhat.satellite.repository_set:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      organization: "SCA"
+      label: rhel-server-rhscl-7-rpms
+      repositories:
+      - releasever: "7Server"
+        basearch: "x86_64"
+      state: enabled
+
+  - name: "Create Daily Sync Plan"
+    redhat.satellite.sync_plan:
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      server_url: "{{ satellite_url }}"
+      name: "Daily Sync"
+      organization: "SCA"
+      interval: "daily"
+      enabled: true
+      sync_date: "{{ ansible_facts.date_time.date }} 10:30:00 UTC"
+      products:
+        - 'Red Hat Ansible Engine'
+        - 'Red Hat Enterprise Linux for x86_64'
+        - 'Red Hat Enterprise Linux for x86_64 - Extended Update Support'
+        - 'Red Hat Enterprise Linux Server'
+        - 'Red Hat Enterprise Linux Server - Extended Life Cycle Support'
+        - 'Red Hat Satellite Capsule'
+        - 'Red Hat Software Collections (for RHEL Server)'
+      state: present
+
+  - name: Create LCE Dev for SCA
+    redhat.satellite.lifecycle_environment:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "SCA"
+      name: "Dev"
+      prior: "Library"
+
+  - name: Create LCE Test for SCA
+    redhat.satellite.lifecycle_environment:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "SCA"
+      name: "Test"
+      prior: "Dev"
+
+  - name: Create LCE Prod for SCA
+    redhat.satellite.lifecycle_environment:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "SCA"
+      name: "Prod"
+      prior: "Test"
+
+  - name: Create content view for RHEL 6
+    redhat.satellite.content_view:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "SCA"
+      name: RHEL6
+      repositories:
+        - name: Red Hat Enterprise Linux 6 Server (RPMs)
+          product: 'Red Hat Enterprise Linux Server'
+
+  - name: Create content view for RHEL 7
+    redhat.satellite.content_view:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "SCA"
+      name: RHEL7
+      repositories:
+        - name: Red Hat Enterprise Linux 7 Server (RPMs)
+          product: 'Red Hat Enterprise Linux Server'
+
+  - name: Create content view for RHEL 8
+    redhat.satellite.content_view:
+      server_url: "{{ satellite_url }}"
+      username: "{{ satellite_user }}"
+      password: "{{ satellite_password }}"
+      organization: "SCA"
+      name: RHEL8
+      repositories:
+        - name: Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
+          product: 'Red Hat Enterprise Linux for x86_64'
+        - name: Red Hat Enterprise Linux 8 for x86_64 - Appstream (RPMs)
+          product: 'Red Hat Enterprise Linux for x86_64'
+
+  - name: Print End of Configuring SCA Org Msg
+    ansible.builtin.debug:
+      msg: "SCA is Complete!"
+

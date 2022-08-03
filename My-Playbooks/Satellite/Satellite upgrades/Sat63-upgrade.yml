@@ -1,0 +1,28 @@
+---
+- name: Batman upgrade playbook
+  hosts: batman.usersys.redhat.com
+  tasks:
+  - name: upgrade packages via yum
+    yum:
+      name: '*'
+      update_cache: yes
+      state: latest
+      disablerepo: '*'
+      enablerepo: 'rhel-7-server-rpms,rhel-7-server-satellite-6.3-puppet4-rpms,rhel-7-server-satellite-6.3-rpms,rhel-7-server-satellite-tools-6.3-rpms,rhel-server-rhscl-7-rpms'
+
+  - name: Upgrade Satellite
+    command: satellite-installer -S satellite --upgrade
+
+- name: Joker upgrade playbook
+  hosts: joker.usersys.redhat.com
+  tasks:
+  - name: upgrade packages via yum
+    yum:
+      name: '*'
+      update_cache: yes
+      state: latest
+      disablerepo: '*'
+      enablerepo: 'rhel-7-server-rpms,rhel-7-server-satellite-capsule-6.3-puppet4-rpms,rhel-7-server-satellite-capsule-6.3-rpms,rhel-7-server-satellite-tools-6.3-rpms'
+
+  - name: Upgrade Capsule
+    command: satellite-installer -S capsule --upgrade

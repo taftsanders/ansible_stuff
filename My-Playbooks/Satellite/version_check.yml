@@ -1,0 +1,95 @@
+---
+- name: Satellite Package Version Check
+  hosts: bombsat64.usersys.redhat.com 
+  tasks:
+   - name: Checking Foreman
+     shell: rpm -qa foreman
+
+   - name: Checking Forman-Proxy
+     shell: rpm -qa foreman-proxy
+
+   - name: Checking Katello
+     shell: rpm -qa katello
+
+   - name: Checking Puppet
+     shell: rpm -qa puppetserver
+
+   - name: Checking Candlepin
+     shell: rpm -qa candlepin
+
+   - name: Checking Pulp
+     shell: rpm -qa pulp-server
+
+   - name: Checking Hammer
+     shell: rpm -qa tfm-rubygem-hammer_cli
+
+   - name: Checking Qpid
+     shell: rpm -qa qpid-cpp-server
+
+   - name: Checking Satellite package
+     shell: rpm -qa satellite
+
+   - name: Checking Ansible
+     shell: rpm -qa ansible
+
+   - name: Checking Bootdisk
+     shell: rpm -qa tfm-rubygem-foreman_bootdisk
+
+   - name: Checking Discovery
+     shell: rpm -qa tfm-rubygem-foreman_discovery
+
+   - name: Checking Hooks
+     shell: rpm -qa tfm-rubygem-foreman_hooks
+
+   - name: Checking Ovirt Provisioning
+     shell: echo "dunno"
+
+   - name: Checking Red Hat Access
+     shell: rpm -qa | grep tfm-rubygem-redhat_access
+
+   - name: Checking Tasks
+     shell: rpm -qa tfm-rubygem-foreman-tasks
+
+   - name: Checking SCAP
+     shell: rpm -qa tfm-rubygem-foreman_openscap
+
+   - name: Checking Docker
+     shell: rpm -qa tfm-rubygem-foreman_docker
+
+   - name: Checking Remote Execution
+     shell: rpm -qa tfm-rubygem-foreman_remote_execution
+
+   - name: Checking Virt-who
+     shell: rpm -qa virt-who
+
+   - name: Checking Templates
+     shell: rpm -qa tfm-rubygem-foreman_templates
+
+   - name: Checking Mongo
+     shell: rpm -qa rh-mongodb34-mongodb-server
+
+   - name: Checking Fog
+     shell: rpm -qa tfm-rubygem-fog
+
+   - name: Checking Postgres
+     shell: rpm -qa postgresql
+
+   - name: Checking Apache
+     shell: rpm -qa httpd
+
+   - name: Checking Tomcat
+     shell: rpm -qa tomcat
+
+   - name: Checking SCL
+     shell: echo "dunno"
+
+   - name: Checking OpenSCAP
+     shell: rpm -qa openscap
+
+   - name: Checking OpenJDK
+     shell: rpm -qa |grep "java-1.*-openjdk"
+
+   - name: Checking Katello-Client-Bootstrap
+     shell: rpm -qa katello-client-bootstrap
+
+

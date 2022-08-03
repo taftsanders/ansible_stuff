@@ -1,0 +1,9 @@
+---
+- name: break dns resolution
+  hosts: register
+  tasks:
+  - name: set subscription.rhsm.redhat.com to 1.2.3.4
+    shell: echo "1.2.3.4 subscription.rhsm.redhat.com" >> /etc/hosts
+
+  - name: Clear bash history
+    shell: history -cw

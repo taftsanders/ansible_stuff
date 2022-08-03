@@ -1,0 +1,11 @@
+---
+- name: remove unsupported product
+  hosts: register
+  tasks:
+  - name: remove oracle-java-restricted-maintenance.pem file
+    file:
+      state: absent
+      path: /etc/pki/product-default/666.pem
+
+  - name: Clear bash history
+    shell: history -cw

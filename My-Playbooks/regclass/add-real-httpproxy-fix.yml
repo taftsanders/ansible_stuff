@@ -1,0 +1,32 @@
+---
+- name: remove environment variables from /etc/environment
+  hosts: register
+  tasks:
+    - name: remove http_proxy variable
+      lineinfile:
+        path: /etc/environment
+        regexp: '^HTTP'
+        state: absent
+
+- name: remove ACL from squid proxy
+  hosts: proxy
+  tasks:
+    - name: remove acl regclass1 src regclass1.usersys.redhat.com
+      replace:
+        path: /etc/squid/squid.conf
+        regexp: 'acl regclass1 src regclass1.usersys.redhat.com'
+        replace: '#acl regclass1 src regclass1.usersys.redhat.com'
+
+    - name: remove http_access rule
+      replace:
+        path: /etc/squid/squid.conf
+        regexp: 'http_access deny regclass1'
+        replace: '#http_access deny regclass1'
+
+    - name: restart squid proxy
+      service:
+        name: squid
+        state: restarted
+
+    - name: Clear bash history
+      shell: history -cw

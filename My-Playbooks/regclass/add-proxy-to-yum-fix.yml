@@ -1,0 +1,9 @@
+---
+- name: add proxy to yum.conf
+  hosts: register
+  tasks:
+    - name: add proxy to yum.conf
+      command: sed -i -e 's|proxy=http://fakeproxy.local:3128||' /etc/yum.conf
+
+    - name: Clear bash history
+      shell: history -cw

@@ -1,0 +1,19 @@
+---
+- name: corrupt redhat-uep.pem
+  hosts: register
+  tasks:
+  - name: remove good redhat-uep.pem
+    file:
+      state: absent
+      path: /etc/rhsm/ca/redhat-uep.pem
+
+  - name: copy bad redhat-uep.pem
+    copy:
+      src: ./pemfiles/bad-redhat-uep.pem
+      dest: /etc/rhsm/ca/redhat-uep.pem
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Clear bash history
+    shell: history -cw

@@ -1,0 +1,10 @@
+---
+- name: Downgrade subscription-manager
+  hosts: register
+  tasks:
+
+  - name: Downgrade subscription-manager
+    yum:
+      name: subscription-manager-1.10.14-7.el7.x86_64
+      state: present
+      allow_downgrade: yes

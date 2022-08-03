@@ -1,0 +1,12 @@
+---
+- name: add proxy to rhsm.conf
+  hosts: register
+  tasks:
+  - name: change proxy hostname line
+    command: sed -i -e 's/proxy_hostname = fakeproxy.local/proxy_hostname =/' /etc/rhsm/rhsm.conf
+
+  - name: change proxy port
+    command: sed -i -e 's/proxy_port = 3128/proxy_port =/' /etc/rhsm/rhsm.conf
+
+  - name: Clear bash history
+    shell: history -cw

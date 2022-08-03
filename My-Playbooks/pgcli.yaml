@@ -1,0 +1,51 @@
+# Invocation: ansible-playbook -i server_name,   pgcli.yml  --user root --ask-pass
+# Usage: sudo pgcli  -h server_name -p 5432 -U postgres
+---
+- name: update postgres config files to use pgcli
+  hosts: all
+  vars: 
+  vars_files:
+  gather_facts: no
+
+  tasks:
+    - name: comment out the listen_addresses line in postgresql.conf
+      replace:
+        path: /var/lib/pgsql/data/postgresql.conf
+        regexp: '^listen_addresses = localhost'
+        replace: '#listen_addresses = localhost'
+        backup: yes
+
+    - name: add listen_addresses line in postgresql.conf 
+      lineinfile:
+        path: /var/lib/pgsql/data/postgresql.conf
+        backup: yes
+        state: present
+        insertafter: '#listen_addresses = localhost'
+        line: "listen_addresses = '*' "
+
+    - name: comment out reject line in pg_hba.conf
+      replace:
+        path: /var/lib/pgsql/data/pg_hba.conf
+        regexp: '^(host\s+all\s+postgres\s+0\.0\.0\.0/0\s+reject)'
+        replace: '#\1'
+        backup: yes
+
+    - name: add trust line on pg_hba.conf
+      lineinfile:
+        path: /var/lib/pgsql/data/pg_hba.conf
+        backup: yes
+        insertafter: '#host\s+all\s+postgres\s+0\.0\.0\.0/0\s+reject'
+        state: present
+        line: 'host     all     postgres    0.0.0.0/0     trust'
+
+    - name: open port 5432
+      firewalld:
+        port: 5432/tcp
+        permanent: yes
+        state: enabled
+        immediate: true
+
+    - name: restart postgres service
+      service:
+        name: postgresql
+        state: restarted

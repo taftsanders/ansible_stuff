@@ -1,0 +1,72 @@
+# This playbook is for performing basic tasks on a system
+# to make it standard like I like it 
+---
+- name: Standardize a system
+  hosts: 192.168.1.192
+  remote_user: root
+  become: true
+  gather_facts: true
+  vars:
+  - work_client: ansible_os_family == "RedHat" and ansible_default_ipv4.address is regex("^10")
+  - home_client: ansible_default_ipv4.address is regex("^192")
+  - packages:
+    - wget
+    - vim
+  - required_variables:
+    - hash
+
+  tasks:
+
+  - name: "Check if required_variables is set"
+    fail:
+      msg: "You must set {{ item }}"
+    when: work_client and {{ item }} is defined and {{ item }}|length == 0
+    with_items:
+      - "{{ required_variables }}"
+
+  - name: Install Batman's katello-ca-consumer
+    yum:
+      name: http://batman.usersys.redhat.com/pub/katello-ca-consumer-latest.noarch.rpm
+      state: present
+    when: work_client
+
+  - name: Register system
+    redhat_subscription:
+      state: present
+      auto_attach: yes
+      username: admin
+      password: redhat
+      org_id: Default_Organization
+      environment: Library
+      force_register: no
+    when: work_client
+
+  - name: Enable only base repo
+    rhsm_repository:
+      name: rhel-7-server-rpms
+      state: enabled
+      purge: yes
+    when: work_client
+
+  - name: Install packages
+    yum:
+      name: "{{ packages }}"
+      state: present
+
+  - name: Install Red Hat DDNS packages
+    yum:
+      name: http://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-cert-install-0.1-15.el7.csb.noarch.rpm,http://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-ddns-client-1.3-14.el7.csb.noarch.rpm
+      state: present
+    when: work_client
+
+  - name: Configure Red Hat DDNS
+    lineinfile:
+      path: /etc/redhat-internal-ddns/hosts
+      line: "{{ ansible_hostname }} usersys.redhat.com {{ hash }}"
+    when: work_client
+
+  - name: Copy id_rsa.pub key to client
+    lineinfile:
+      path: /root/.ssh/authorized_keys
+      line: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC11gdu3C+1EGU9HR59j7EfG1rmIVqzqyly/Y8XRZVgDC/E/PuPmWLHRUE6E30xjxcUCG/99rsvJmuai+FuMZgYNg5hlPzUA1LDkL0ewXIJ2Hf0zrTZr7ZA39ITIjl3HIBQJzwYRkNcNoMRJtKAbpmQ/DxiEDHsqxZaJWDEQ8b8U2vaaopKeddyh60q5g06TzmR6eepWrZQTJgo2g8fWWxd0Ra/ZSUEb5DCQPBHlPDr5i3SUbQtCl7ug5YQgQEr/I+M4A0C/hz/ZvDPHeLuLJS/wX5cV+LofhUNn76uTOrRXct8t9FHdDRJ8wbeVxV9bOf1DK40aa1iTXvFhWlqljrR tasander@whitehat.usersys.redhat.com
+      create: yes

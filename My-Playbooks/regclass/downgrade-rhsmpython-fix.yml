@@ -1,0 +1,9 @@
+---
+- name: Upgrade subscription-manager
+  hosts: register
+  tasks:
+
+  - name: Upgrade subscription-manager
+    yum:
+      name: subscription-manager-1.19.21-1.el7.x86_64
+      state: present
