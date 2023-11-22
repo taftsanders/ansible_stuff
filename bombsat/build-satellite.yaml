@@ -1187,6 +1187,15 @@
         - name: Red Hat Enterprise Linux 8 for x86_64 - Appstream (RPMs)
           product: 'Red Hat Enterprise Linux for x86_64'
 
+  - name: Create Virt-Who Configuration for Toledo VCenter for Default Org
+    shell: "hammer virt-who-config create --name 'Toledo VCenter' --organization 'Default Organization' --interval 1440 --filtering-mode none --hypervisor-id hostname --hypervisor-type esx --hypervisor-server 'vcenter.toledo.satellite.lab.eng.rdu2.redhat.com' --hypervisor-username taft --satellite-url bombsat614.d.sysmgmt.cee.redhat.com --hypervisor-password {{ vcenter_password }}"    
+
+  - name: Create Virt-Who Configuration for Toledo VCenter for SCA
+    shell: "hammer virt-who-config create --name 'Toledo VCenter' --organization 'SCA' --interval 1440 --filtering-mode none --hypervisor-id hostname --hypervisor-type esx --hypervisor-server 'vcenter.toledo.satellite.lab.eng.rdu2.redhat.com' --hypervisor-username taft --satellite-url bombsat614.d.sysmgmt.cee.redhat.com --hypervisor-password {{ vcenter_password }}"
+
+  - name: Deploy virt-who configurations
+    shell: "for i in $(hammer --no-headers virt-who-config list --fields Id); do hammer virt-who-config deploy --id $i; done"
+
   - name: Print End of Configuring SCA Org Msg
     ansible.builtin.debug:
       msg: "SCA is Complete!"
